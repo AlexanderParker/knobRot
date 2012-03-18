@@ -143,14 +143,15 @@
 					
 					// Link the three fields together				
 					knobDiv.data('knobRot', { 
-						'realValue': realValueField 
+						'realValue': realValueField,
+						'outputField': $this
 					});
 					
 					realValueField.data('knobRot').knobDiv = knobDiv;
 
 					$this.data('knobRot', { 
-						knob: knobDiv,
-						realValue: realValueField
+						'knob': knobDiv,
+						'realValue': realValueField
 					});					
 					
 					//Set the style of the grahic div to some sensible defaults
@@ -159,9 +160,7 @@
 						'height': settings.frameHeight + 'px',
 						'background-position': methods.calculateBackgroundOffsetX( realValueField ) + 'px 0px',
 						'cursor': methods.getDragCursorClass( realValueField )
-					});
-					
-
+					});					
 										
 					//Bind drag events to the knob div
 					knobDiv.on('mousedown.knobRot', function( event ) {
@@ -189,8 +188,11 @@
 							$('body').data('knobRot').lastOffset = startOffset;
 							$('body').data('knobRot').knobDiv = $knobDiv;		
 							
-							//Set the drag cursor
+							// Set the drag cursor
 							$('body').addClass(methods.getDragCursorClass($knobDiv.data('knobRot').realValue));
+							
+							// Trigger some events
+							$knobDiv.data('knobRot').outputField.trigger('knobdragstart', $knobDiv);
 						}
 					});
 
@@ -214,7 +216,8 @@
 							//Update the knob's field with the displaced value
 							methods.updateValue( $('body').data('knobRot').knobDiv.data('knobRot').realValue, displacement );
 							
-							$('body').data('knobRot').knobDiv.data('knobRot').realValue.trigger('knobrefresh');
+							$('body').data('knobRot').knobDiv.data('knobRot').outputField.trigger('knobrefresh', $('body').data('knobRot').knobDiv);
+							$('body').data('knobRot').knobDiv.data('knobRot').outputField.trigger('knobdrag', $('body').data('knobRot').knobDiv);							
 						}																
 					});
 					
@@ -231,25 +234,28 @@
 					});
 					
 					// Handle knob value change events
-					realValueField.on('knobrefresh.knobRot', function() {
+					$this.on('knobrefresh.knobRot', function() {
 						realValueField.data('knobRot').dirtyData = true;
 					});
 					
 					// Force a refresh of values on certain events					
 					knobDiv.on('mouseover.knobRot mouseout.knobRot mouseup.knobRot', function() {
-						realValueField.trigger('knobrefresh.knobRot');					
+						knobDiv.data('knobRot').outputField.trigger('knobrefresh.knobRot', knobDiv);
 					});
 					
 					// Handle hovering
 					knobDiv.on('mouseover', function() {
 						$this.addClass('hover');
-						var cursorClass = methods.getDragCursorClass(knobDiv.data('knobRot').realValue);
+						var cursorClass = methods.getDragCursorClass(knobDiv.data('knobRot').realValue);						
 						knobDiv.addClass(cursorClass);
+						// Trigger some events
+						knobDiv.data('knobRot').outputField.trigger('knobmouseover', knobDiv);	
 					});
 					knobDiv.on('mouseout', function() {
 						$this.removeClass('hover');						
 						var cursorClass = methods.getDragCursorClass(knobDiv.data('knobRot').realValue);						
 						knobDiv.removeClass(cursorClass);
+						knobDiv.data('knobRot').outputField.trigger('knobmouseout', knobDiv);	
 					});					
 					
 					//Insert the knob graphic div
@@ -273,13 +279,14 @@
 					$this.attr('unselectable','on');
 					$this.on('mousedown', function() {return false;});
 					$this.on('mouseover', function() {return false;});
+					$this.trigger('knobready', knobDiv);
 				}				
 			});
 		}, 
 		 /**
 		  * Returns the calculated value of the knob
 		  */
-		value: function() {
+		getvalue: function() {
 			$this = $(this);
 			if ($this.is('input:text')) {
 				if ($this.data('knobRot')) {
@@ -288,31 +295,20 @@
 					throw 'Can not call "value" on a non-knobRot element';
 				}
 			} else {
-				throw 'Not a valid input element for knobRot getCalculatedValue';
+				throw 'Not a valid input element for knobRot.getvalue';
 			}
 		 },	
-		 /**
-		  * Returns the current frame
-		  */
-		frame: function() {
-			$this = $(this);
-			if ($this.is('input:text')) {
-				if ($this.data('knobRot')) {
-					return methods.calculateFrame($this);
-				} else {
-					throw 'Can not call "frame" on a non-knobRot element';
-				}
-			} else {
-				throw 'Not a valid input element for knobRot getCalculatedValue';
-			}
-		},
 		/**
 		 * Set the value of the knob element
 		 */
 		set: function( value ) {
-			$this = $(this);
-			$this.data('knobRot').realValue.val( parseFloat(value) );
-			$this.data('knobRot').realValue.trigger('knobrefresh.knobRot');
+			return $(this).each( function() {
+				var $this = $(this);
+				if ($this.is('input:text')) {
+					$this.data('knobRot').realValue.val( parseFloat(value) );
+					$this.data('knobRot').realValue.trigger('knobrefresh.knobRot');
+				}
+			});
 		},
 		/**
 		 * Calculates the step of a knob (accounting for detent,
@@ -365,8 +361,27 @@
 			}
 			
 			// Determine if value is to be detented			
-			if ( knobSettings.detent == true && calculatedValue >= knobSettings.detentValue - knobSettings.detentThreshold && calculatedValue <= knobSettings.detentValue + knobSettings.detentThreshold ) {
+			if ( knobSettings.detent == true && calculatedValue >= knobSettings.detentValue - knobSettings.detentThreshold && calculatedValue <= knobSettings.detentValue + knobSettings.detentThreshold ) {			
+
+				//Determine if we're "enteringdetent"
+				if ($realValueField.data('knobRot').calculatedValue != calculatedValue 
+				&& ($realValueField.data('knobRot').calculatedValue < knobSettings.detentValue - knobSettings.detentThreshold
+				||  $realValueField.data('knobRot').calculatedValue > knobSettings.detentValue + knobSettings.detentThreshold)) {
+
+					//Trigger an event
+					$realValueField.data('knobRot').outputField.trigger('knobenterdetent', $realValueField.data('knobRot').knobDiv);
+				}
+			
+				//Detent the value
 				calculatedValue = knobSettings.detentValue;
+				
+			} else if ($realValueField.data('knobRot').calculatedValue ==  knobSettings.detentValue 
+						&& $realValueField.data('knobRot').calculatedValue != calculatedValue 
+						&&  calculatedValue != knobSettings.detentValue) 	
+			{
+			
+					//Trigger an event
+					$realValueField.data('knobRot').outputField.trigger('knobleavedetent', $realValueField.data('knobRot').knobDiv);
 			}
 								
 			// Clamp value to minimum and maximum
@@ -375,8 +390,8 @@
 				//Limit the input field's value
 				$realValueField.val( knobSettings.minimumValue );	
 
-				//Trigget an event
-				$realValueField.trigger('knob-under-min');
+				//Trigger an event
+				$realValueField.data('knobRot').outputField.trigger('knobvaluemin', $realValueField.data('knobRot').knobDiv);
 				
 				return knobSettings.minimumValue;
 			} else if ( calculatedValue > knobSettings.maximumValue ) {
@@ -384,8 +399,8 @@
 				//Limit the input field's value
 				$realValueField.val( knobSettings.maximumValue );
 				
-				//Trigget an event
-				$realValueField.trigger('knob-over-max');
+				//Trigger an event
+				$realValueField.data('knobRot').outputField.trigger('knobvaluemax', $realValueField.data('knobRot').knobDiv);
 				
 				return knobSettings.maximumValue;
 			}
@@ -415,6 +430,11 @@
 				return (knobSettings.frameCount - 1);
 			} else if (calculatedFrame < 0) {
 				return 0;
+			}
+			
+			//Trigger a frame change event
+			if ($realValueField.data('knobRot').currentFrame != calculatedFrame) {
+				$realValueField.data('knobRot').outputField.trigger('knobframechange', [knobData.knobDiv, $realValueField.data('knobRot').currentFrame, calculatedFrame]);
 			}
 			
 			return calculatedFrame;
@@ -463,7 +483,7 @@
 				$('body').removeClass(methods.getDragCursorClass($knobDiv.data('knobRot').realValue));
 				
 				//Trigger a value update event
-				$knobDiv.data('knobRot').realValue.trigger('knobrefresh');
+				$knobDiv.data('knobRot').outputField.trigger('knobrefresh');
 			}
 		},
 		/**
