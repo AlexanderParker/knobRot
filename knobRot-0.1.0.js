@@ -213,9 +213,13 @@
 					// Handle hovering
 					knobDiv.on('mouseover', function() {
 						$this.addClass('hover');
+						var cursorClass = methods.getDragCursorClass(knobDiv.data('knobRot').target);
+						knobDiv.addClass(cursorClass);
 					});
 					knobDiv.on('mouseout', function() {
 						$this.removeClass('hover');						
+						var cursorClass = methods.getDragCursorClass(knobDiv.data('knobRot').target);						
+						knobDiv.removeClass(cursorClass);
 					});
 					
 					// Handle mouse up events
@@ -516,19 +520,12 @@
 		 * Adds plugin-specific CSS styles to the document
 		 */
 		addCssStyles: function() {
-			var styleElement = $('<style>', {
-				'type': 'text/css',
-				'rel': 'stylesheet'
-			});
-			
-			//Add custom styles
-			styleElement.html(
-				'.rotknob-n-resize{ cursor: n-resize!important; }'
-				+ '.rotknob-e-resize{ cursot: e-resize!important; }'
-			);
-			
-			//Append to body
-			$('body').append(styleElement);
+			var styleElement = $(
+				'<style type="text/css" rel="stylesheet">' +
+				'	.rotknob-n-resize{ cursor: n-resize!important; }' +
+				'	.rotknob-e-resize{ cursot: e-resize!important; }' +			
+				'</style>'
+			).appendTo('body');
 		}
 	};	
 	/**
