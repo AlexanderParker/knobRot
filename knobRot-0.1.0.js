@@ -245,7 +245,7 @@
 						$this.val(realValueField.data('knobRot').calculatedValue);
 					});
 					
-					knobDiv.on('mouseover.knobRot mouseout.knobRot', function() {
+					knobDiv.on('mouseover.knobRot mouseout.knobRot mouseup.knobRot', function() {
 						realValueField.trigger('knobvaluechange');					
 					});
 					
