@@ -51,7 +51,7 @@
 				hideInput: false,
 				
 				// Whether or not to hide the real value field
-				hideRealValue: true,				
+				hideRealValue: false,				
 				
 				// If isToggle is true, rather than dragging to change the value
 				// you simply click to toggle between max and min - all other settings
@@ -198,7 +198,7 @@
 								'horizontal': event.pageX - $('body').data('knobRot').lastOffset.left,
 								'vertical': event.pageY - $('body').data('knobRot').lastOffset.top
 							}														
-							
+							if (displacement.vertical > 0) console.log(displacement.vertical);
 							//Update the drag container's last offser
 							$('body').data('knobRot').lastOffset = {
 								'left': event.pageX,
