@@ -87,21 +87,23 @@
 				if ($this.is('input:text')) {					
 				
 					// Create a second text field for real value processing
+					// This field is where the behind-the-scenes floating point value of
+					// the knob is stored.
 					var realValueField = $('<input>', {
 						'type': 'text',
 						'value': parseFloat($this.val()),
 						'autocomplete':'off'
 					});
-					
-					// Attach the real value field to the dom
-					$this.after(realValueField);				
-					
+
 					//Set initial data values
 					realValueField.data('knobRot', {
 						'settings': settings,
 						'outputField': $this
-					});
+					});					
 					
+					// Attach the real value field to the dom
+					$this.after(realValueField);				
+									
 					//Calculate some range offsets
 					realValueField.data('knobRot').rangeSize = settings.maximumValue - settings.minimumValue;
 					realValueField.data('knobRot').rangeOffset = 0 - settings.minimumValue;					
@@ -148,6 +150,11 @@
 										
 					//Bind drag events to the knob div
 					knobDiv.on('mousedown.knobRot', function( event ) {
+						
+						//Only use the main mouse button for mousedown events
+						if (event.which != 1) {
+							return false;
+						}
 						
 						$knobDiv = $(this);
 
@@ -285,7 +292,7 @@
 		 /**
 		  * Returns the calculated value of the knob
 		  */
-		 value: function() {
+		value: function() {
 			$this = $(this);
 			if ($this.is('input:text')) {
 				if ($this.data('knobRot')) {
@@ -300,7 +307,7 @@
 		 /**
 		  * Returns the current frame
 		  */
-		 frame: function() {
+		frame: function() {
 			$this = $(this);
 			if ($this.is('input:text')) {
 				if ($this.data('knobRot')) {
@@ -311,7 +318,13 @@
 			} else {
 				throw 'Not a valid input element for knobRot getCalculatedValue';
 			}
-		 },				 
+		},
+		/**
+		 * Set the value of the knob element
+		 */
+		set: function( value ) {
+			console.log('v', value, this);
+		},
 		/**
 		 * Calculates the step of a knob (accounting for detent,
 		 * ranges, steps, etc.)
