@@ -181,13 +181,6 @@
 							return false;
 						}
 					});
-										
-					// Handle the mouse leaving and entering the browser window
-					$(window).on('mouseout.knobRot mouseover.knobRot', function( event ) {
-						if (event.toElement == null || event.fromElement == null) {
-							methods.stopDrag();
-						}
-					});
 
 					// Handle dragging
 					$(document).on('mousemove.knobRot', function( event ) {
