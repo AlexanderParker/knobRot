@@ -80,13 +80,17 @@
 				// Buffer the knob element
 				var $this = $(this);				
 				
+				// Disable autocomplete
+				$this.attr('autocomplete','off');
+				
 				// knobRot currently only works with text inputs				
 				if ($this.is('input:text')) {					
 				
 					// Create a second text field for real value processing
 					var realValueField = $('<input>', {
 						'type': 'text',
-						'value': $this.val()
+						'value': parseFloat($this.val()),
+						'autocomplete':'off'
 					});
 					
 					// Attach the real value field to the dom
