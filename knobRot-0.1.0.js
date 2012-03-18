@@ -167,7 +167,7 @@
 					$this.data('knobRot', { knob: knobDiv });
 					
 					// Disable selection if a drag is in progress
-					$(document).on('selectstart.knobRot select.knobRot',function(){			
+					$('body').on('selectstart.knobRot select.knobRot mousedown.knobRot',function(){			
 						if ($('body').data('knobRot').dragging == true) {
 							return false;
 						}
