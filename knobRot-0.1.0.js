@@ -213,7 +213,7 @@
 							
 							//Compare with current value to see if an event needs to be 
 							//triggered			
-							$('body').data('knobRot').knobDiv.data('knobRot').target.trigger('knobvaluechange');
+							$('body').data('knobRot').knobDiv.data('knobRot').target.trigger('knobrefresh.knobRot');
 						}																
 					});
 
@@ -229,24 +229,40 @@
 						knobDiv.removeClass(cursorClass);
 					});
 					
-					// Handle mouse up events
-					$('body').on('mouseup.knobRot', function(){
+					// Stop dragging on mouse up
+					$(document).on('mouseup.knobRot', function() {
 						methods.stopDrag();
-					});	
+					});
+					
+					// Special case, where the mouse leaves and is released
+					// If it comes back into the body we want to check to see
+					// if the mouse is still down
+					$('body').on('mouseleave.knobRot', function() {
+						if ($('body').data('knobRot').dragging == true) {
+							$('body').data('knobRot').leftWhileDragging = true;
+						}
+					});
+					$('body').on('mouseenter.knobRot', function() {
+						if ($('body').data('knobRot').leftWhileDragging == true) {
+							console.log('Left while dragging');
+							$('body').trigger('click');
+						}
+						$('body').data('knobRot').leftWhileDragging = false;
+					});
 					
 					// Handle direct changes to the field value
 					realValueField.on('change', function() {
-						realValueField.trigger('knobvaluechange');
+						realValueField.trigger('knobrefresh.knobRot');
 					});
 					
 					// Handle knob value change events
-					realValueField.on('knobvaluechange', function() {
+					realValueField.on('knobrefresh.knobRot', function() {
 						realValueField.data('knobRot').dirtyData = true;
 						$this.val(realValueField.data('knobRot').calculatedValue);
 					});
 					
 					knobDiv.on('mouseover.knobRot mouseout.knobRot mouseup.knobRot', function() {
-						realValueField.trigger('knobvaluechange');					
+						realValueField.trigger('knobrefresh.knobRot');					
 					});
 					
 					//Insert the knob graphic div
@@ -443,7 +459,7 @@
 				$('body').removeClass(methods.getDragCursorClass(assignedInput.data('knobRot').target));
 				
 				//Trigger a value update event
-				assignedInput.data('knobRot').target.trigger('knobvaluechange');
+				assignedInput.data('knobRot').target.trigger('knobrefresh.knobRot');
 			}
 		},
 		/**
