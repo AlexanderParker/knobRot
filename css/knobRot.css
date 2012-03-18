@@ -1,5 +1,5 @@
 /*
- * The following 6 styles are all that are required for the knobs
+ * The following 3 styles are all that are required for the knobs
  */
 
 .rot-knob{
@@ -12,18 +12,6 @@
 
 .circle{
 	background-image: url(../images/knobs/circle/circle.png);
-}
-
-.circle:hover{
-	background-position-y: -64px;
-}
-
-.circle.dragging{
-	background-position-y: -64px;
-}
-
-.circle.dragging{
-	background-position-y: -128px;
 }
 
 /*

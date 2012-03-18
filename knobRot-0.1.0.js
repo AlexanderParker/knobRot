@@ -61,6 +61,9 @@
 				isToggle: true								
 			
 			}, options );
+			
+			//Init body data
+			$('body').data('knobRot', {dragging: false});
 
 			return this.each(function() {
 				
@@ -75,7 +78,7 @@
 				var $this = $(this);				
 				
 				// knobRot currently only works with text inputs				
-				if ($this.is('input:text')) {	
+				if ($this.is('input:text')) {					
 				
 					// Create a second text field for real value processing
 					var realValueField = $('<input>', {
@@ -137,50 +140,26 @@
 					});
 										
 					//Bind drag events to the knob div
-					knobDiv.on('mousedown.knobRot', function( event ){
+					knobDiv.on('mousedown.knobRot', function( event ) {
 						
 						$knobDiv = $(this);
 
 						// Make sure we're only dragging once
-						if ( $('#rot-knob-drag').size() == 0 ) {
+						if ( $('body').data('knobRot').dragging != true ) {
 						
 							var startOffset = {
 								'left': event.pageX,
 								'top': event.pageY
-							};
-						
-							// Set the drag containers starting point
-							var dragContainer = $('<div>', {
-								'id': 'rot-knob-drag'
-							});
-							
-							dragContainer.css({
-								'left': startOffset.left + 'px',
-								'top': startOffset.top + 'px',
-								'position': 'absolute',
-								'width': '1px',
-								'height': '1px',
-								'display': 'none',
-								'cursor': 'pointer'
-							});	
-							
-							// Bind the container to its knob and settings
-							dragContainer.data('knobRot', {
-								'lastOffset': startOffset,
-								'target': $knobDiv
-							});
-							
-							// Bind the knob to its drag container
-							$knobDiv.data('knobRot').dragContainer = dragContainer;
+							};						
 
 							// Add drag class
 							$knobDiv.addClass('dragging');							
 							
 							// Flag the drag
-							$knobDiv.data('knobRot').dragging = true;							
-							
-							$('body').prepend(dragContainer);
-
+							$('body').data('knobRot').dragging = true;							
+							$('body').data('knobRot').lastOffset = startOffset;
+							$('body').data('knobRot').knobDiv = $knobDiv;							
+							//$('body').prepend(dragContainer);
 						}
 					});
 					
@@ -189,7 +168,7 @@
 					
 					// Disable selection if a drag is in progress
 					$(document).on('selectstart.knobRot select.knobRot',function(){			
-						if ($('#rot-knob-drag').size() > 0) {
+						if ($('body').data('knobRot').dragging == true) {
 							return false;
 						}
 					});
@@ -197,41 +176,33 @@
 					// Handle the mouse leaving the window
 					$(document).on('mouseout.knobRot', function( event ) {
 						if (event.toElement == null || event.fromElement == null) {
-							methods.removeDragContainer();
+							methods.stopDrag();
 						}
 					});
 
 					// Handle dragging
 					$(document).on('mousemove.knobRot', function( event ) {
-						//Attempt to select the drag container
-						var dragContainer = $('#rot-knob-drag');
 
-						if (dragContainer.size() > 0) {
-						
-							//Move the drag container
-							dragContainer.css({
-								'left': event.pageX,
-								'top': event.pageY
-							});
-							
+						if ( $('body').data('knobRot').dragging == true ) {
+												
 							//Calculate the distance moved
 							var displacement = {
-								'horizontal': event.pageX - dragContainer.data('knobRot').lastOffset.left,
-								'vertical': event.pageY - dragContainer.data('knobRot').lastOffset.top
+								'horizontal': event.pageX - $('body').data('knobRot').lastOffset.left,
+								'vertical': event.pageY - $('body').data('knobRot').lastOffset.top
 							}														
 							
 							//Update the drag container's last offser
-							dragContainer.data('knobRot').lastOffset = {
+							$('body').data('knobRot').lastOffset = {
 								'left': event.pageX,
 								'top': event.pageY
 							}
 							
 							//Update the knob's field with the displaced value
-							methods.updateValue( dragContainer.data('knobRot').target.data('knobRot').target, displacement);
+							methods.updateValue( $('body').data('knobRot').knobDiv.data('knobRot').target, displacement);
 							
 							//Compare with current value to see if an event needs to be 
 							//triggered			
-							dragContainer.data('knobRot').target.data('knobRot').target.trigger('knobvaluechange');
+							$('body').data('knobRot').knobDiv.data('knobRot').target.trigger('knobvaluechange');
 						}																
 					});
 
@@ -245,7 +216,7 @@
 					
 					// Handle mouse up events
 					$('body').on('mouseup.knobRot', function(){
-						methods.removeDragContainer();
+						methods.stopDrag();
 					});	
 					
 					// Handle direct changes to the field value
@@ -439,27 +410,19 @@
 		 * For internal use only, removes the container used for dragging
 		 * knobs
 		 */
-		removeDragContainer: function() {
-			//Attempt to select the drag container
-			var dragContainer = $('#rot-knob-drag');
+		stopDrag: function() {
 			
-			if (dragContainer.size() > 0) {
+			if ($('body').data('knobRot').dragging == true) {
 				
 				//Traverse the drag container's data to find the
 				//associated knob
-				var assignedInput = dragContainer.data('knobRot').target;
+				var assignedInput = $('body').data('knobRot').knobDiv;
 				
 				//Unflag the drag on the knob
-				assignedInput.data('knobRot').dragging = false;
-				
-				//Detach the drag container from the knob
-				assignedInput.data('knobRot').dragContainer = null;
-				
+				$('body').data('knobRot').dragging = false;
+							
 				// Remove drag class
-				assignedInput.removeClass('dragging');
-				
-				//Remove the drag container from the page
-				$('#rot-knob-drag').remove();
+				assignedInput.removeClass('dragging');				
 				
 				//Trigger a value update event
 				assignedInput.data('knobRot').target.trigger('knobvaluechange');
@@ -523,7 +486,7 @@
 				offsetY = (0 - $realValueField.data('knobRot').settings.frameHeight) + "px";
 			}
 		
-			if ($realValueField.data('knobRot').target.data('knobRot').dragging == true) {
+			if ($('body').data('knobRot').dragging == true) {
 				offsetY = (0 - $realValueField.data('knobRot').settings.frameHeight * 2 ) + "px";
 			}
 		

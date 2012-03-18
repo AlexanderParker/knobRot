@@ -31,7 +31,7 @@
 			<input type="text" value="30" id="circle-knob" class="knob-values" />
 		</div>				
 		<div class="knob-description">		
-			<p>Using some basic CSS and a 3-layer sprite sheet, you can easily create hover and dragging effects (the plug-in adds a 'dragging' class to help with this)...</p>
+			<p>If you use a sprite sheet stacked vertically with normal, hover and drag state graphics, you can automatically create hover and dragging effects (the plug-in adds a 'dragging' class to help with this)...</p>
 			<pre>
 	$('#circle-knob').knobRot({
 		'classes': ['circle'],
@@ -48,7 +48,7 @@
 			<input type="text" value="1" id="black-knob" class="knob-values" />
 		</div>				
 		<div class="knob-description">		
-			<p>Here is another one.  This is restricted to only 5 steps, in a range of 1 to 5.  Only a single line of CSS and some configuration values are needed to change the knob graphics.  Even though this particular knob has 45 frames in its animation, the code is working out how to map all of these with the desired number of steps and detenting.</p>
+			<p>Here is another one.  This is restricted to only 5 steps, in a range of 1 to 5.  Only a single line of CSS and some configuration values are needed to change the knob graphics.  Even though this particular knob has 45 frames in its animation, the plugin is working out how to map all of these with the desired number of steps (with optional detenting).</p>
 			<p>You may also notice that the drag multiplier is set to 0.02.  This is because as the range is reduced, you need to reduce the amount each pixel of dragging adds to the value, otherwise the knob isn't easy to use.</p>
 			<pre>		
 	$('#black-knob').knobRot({
