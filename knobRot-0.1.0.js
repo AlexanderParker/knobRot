@@ -64,6 +64,9 @@
 			
 			//Init body data
 			$('body').data('knobRot', {dragging: false});
+			
+			//Add custom CSS			
+			methods.addCssStyles();
 
 			return this.each(function() {
 				
@@ -136,7 +139,7 @@
 						'width': settings.frameWidth + 'px',
 						'height': settings.frameHeight + 'px',
 						'background-position': methods.calculateBackgroundOffsetX( realValueField ) + 'px 0px',
-						'cursor': 'pointer'
+						'cursor': methods.getDragCursorClass( realValueField )
 					});
 										
 					//Bind drag events to the knob div
@@ -158,8 +161,10 @@
 							// Flag the drag
 							$('body').data('knobRot').dragging = true;							
 							$('body').data('knobRot').lastOffset = startOffset;
-							$('body').data('knobRot').knobDiv = $knobDiv;							
-							//$('body').prepend(dragContainer);
+							$('body').data('knobRot').knobDiv = $knobDiv;		
+							
+							//Set the drag cursor
+							$('body').addClass(methods.getDragCursorClass($knobDiv.data('knobRot').target));
 						}
 					});
 					
@@ -173,8 +178,8 @@
 						}
 					});
 										
-					// Handle the mouse leaving the window
-					$(document).on('mouseout.knobRot', function( event ) {
+					// Handle the mouse leaving and entering the browser window
+					$(window).on('mouseout.knobRot mouseover.knobRot', function( event ) {
 						if (event.toElement == null || event.fromElement == null) {
 							methods.stopDrag();
 						}
@@ -182,7 +187,6 @@
 
 					// Handle dragging
 					$(document).on('mousemove.knobRot', function( event ) {
-
 						if ( $('body').data('knobRot').dragging == true ) {
 												
 							//Calculate the distance moved
@@ -424,6 +428,9 @@
 				// Remove drag class
 				assignedInput.removeClass('dragging');				
 				
+				//Set the drag cursor
+				$('body').removeClass(methods.getDragCursorClass(assignedInput.data('knobRot').target));
+				
 				//Trigger a value update event
 				assignedInput.data('knobRot').target.trigger('knobvaluechange');
 			}
@@ -477,22 +484,52 @@
 		  * and gives designers and developers less flexibility when designing
 		  * buttons.  And it's slower.  I'm sure they had their reasons...
 		  */
-		  calculateBackrgroundOffset: function( $realValueField ) {
+		calculateBackrgroundOffset: function( $realValueField ) {
 			
+			//Calculate the X offsey
 			var offsetX = methods.calculateBackgroundOffsetX( $realValueField ) + 'px';
 			var offsetY = "0px";
-			
+
+			//Calculate the Y offset
 			if ($realValueField.data('knobRot').outputField.hasClass('hover')) {	
 				offsetY = (0 - $realValueField.data('knobRot').settings.frameHeight) + "px";
 			}
-		
+
 			if ($('body').data('knobRot').dragging == true) {
 				offsetY = (0 - $realValueField.data('knobRot').settings.frameHeight * 2 ) + "px";
 			}
-		
+
 			return offsetX + " " + offsetY;
+
+		},
+		/**
+		 * Determine whether a vertical or horizontal cursor should be userd
+		 */
+		getDragCursorClass: function( $realValueField ) {
+			if ($realValueField.data('knobRot').settings.dragVertical == true ) {
+				return 'rotknob-n-resize';
+			} else {
+				return 'rotknob-e-resize';
+			}		
+		},
+		/**
+		 * Adds plugin-specific CSS styles to the document
+		 */
+		addCssStyles: function() {
+			var styleElement = $('<style>', {
+				'type': 'text/css',
+				'rel': 'stylesheet'
+			});
 			
-		  }
+			//Add custom styles
+			styleElement.html(
+				'.rotknob-n-resize{ cursor: n-resize!important; }'
+				+ '.rotknob-e-resize{ cursot: e-resize!important; }'
+			);
+			
+			//Append to body
+			$('body').append(styleElement);
+		}
 	};	
 	/**
 	 * Delegate method execution
