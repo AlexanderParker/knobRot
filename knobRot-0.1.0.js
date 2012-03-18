@@ -571,7 +571,7 @@
 			var styleElement = $(
 				'<style type="text/css" rel="stylesheet">' +
 				'	.rotknob-n-resize{ cursor: n-resize!important; }' +
-				'	.rotknob-e-resize{ cursot: e-resize!important; }' +			
+				'	.rotknob-e-resize{ cursor: e-resize!important; }' +			
 				'</style>'
 			).appendTo('body');
 		}
