@@ -9,24 +9,30 @@
 		<h1>knobRot.js demonstration</h1>
 		<hr />
 		<h2>Introduction:</h2>		
-		<p>Well I guess you're all wondering what this is exactly.  I am the first to admit it's a very niche requirement, but what you see before you here a knobs.  The kind that you can click and drag to set a value.</p>
-		<p>The way this has been achieved is the important part.  Basically you just need a standard HTML text input element, and the jQuery plugin I've provided does the rest of the work.</p>
-		<p>How you use these is up to you.  I have a very specific need in mind for them, but I thought I would share anyway, as I haven't really seen anything that did quite what I wanted in my travels.</p>
-		<h2>How to get the graphics:</h2>
-		<p>You can use <a href="http://www.g200kg.com/en/software/knobman.html">KnobMan</a> to generate the button graphics.  Export your knob as a horizontal strip of frames.</p>
-		<h2>Plugin source code</h2>		
-		<p>To get the source code, or if you have any questions, feature requests or bug reports feel free contact me via my <a href="https://github.com/AlexanderParker/Side-Projects/tree/master/jquery-plugins/knobRot">GitHub Account</a>.  My blog is <a href="http://www.domitable.com">back this way</a>.</p>
+		<p>I present you with a jQuery plugin that turns ordinary text fields into rotary knobs.  As you will soon see, the heavy lifting provided by this plugin makes it very simple to get any knob-related problem sorted.</p>
 		<h2>Basic Knob:</h2>
 		<div class="knob-container">
 			<!-- Basic Knob: -->
 			<input type="text" value="0" id="basic-knob" class="knob-values" />			
 		</div>
 		<div class="knob-description">
-			<p>This is a rotary knob with a value range between -100 and 100.  It is center detented (that means it snaps) to 0, with a sensitivity of -10 to 10 for the snapping.  There are 64 frames in the knob image - the code works out all the hard stuff.  As you can see.</p>
+			<p>This is a rotary knob with a value range between -100 and 100.  It is center detented (that means it snaps) to 0, with a sensitivity of -10 to 10 for the snapping.  There are 64 frames in the knob image - the code works out all the hard stuff.  The only other code I needed was a simple input text field, and a line of CSS defining the background image the knob should use.</p>
+			<p>Go ahead, click it and drag.</p>
 			<pre>
 	$('#basic-knob').knobRot();
 			</pre>
-		</div>		
+		</div>
+		<h2>Basic Knob - Horizontal:</h2>
+		<div class="knob-container">
+			<!-- Basic Knob: -->
+			<input type="text" value="0" id="basic-knob-horizontal" class="knob-values" />			
+		</div>
+		<div class="knob-description">
+			<p>This is the same as before - but notice that you now drag from side to side.  The mouse cursor changes appropriately, saving you the hassle of dealing with cross-browser event bubbling nightmares.</p>
+			<pre>
+	$('#basic-knob-horizontal').knobRot({dragVertical: false});
+			</pre>
+		</div>				
 		<h2>Hover and drag-state effects:</h2>
 		<div class="knob-container">		
 			<!-- Knob with hover effects: -->		
@@ -51,8 +57,8 @@
 			<input type="text" value="2" id="black-knob" class="knob-values" />
 		</div>				
 		<div class="knob-description">		
-			<p>Here is another one.  This is restricted to only 5 steps, in a range of 1 to 5.  Only a single line of CSS and some configuration values are needed to change the knob graphics.  Even though this particular knob has 45 frames in its animation, the plugin is working out how to map all of these with the desired number of steps (with optional detenting).</p>
-			<p>You may also notice that the drag multiplier is set to 0.02.  This is because as the range is reduced, you need to reduce the amount each pixel of dragging adds to the value, otherwise the knob isn't easy to use.</p>
+			<p>Here is another one.  This is restricted to only 5 steps, in a range of 1 to 5.  Even though this particular knob has 45 frames in its animation, the plugin is working out how to map calculated values to frame numbers, saving you from having to do the tedious math.</p>
+			<p>If you look at the settings, you may also notice that the drag multiplier is set to 0.02.  This is because the range is reduced, so you need to reduce the amount each pixel of dragging adds to the value otherwise the knob will spin too quickly.</p>
 			<pre>		
 	$('#black-knob').knobRot({
 		'classes': ['black'],
@@ -98,30 +104,27 @@
 			<div class="knob-container">		
 				<input type="text" value="0" class="knob-values knob-swarm" />
 			</div>			
-			<div class="knob-container">		
-				<input type="text" value="0" class="knob-values knob-swarm" />
-			</div>
-			<div class="knob-container">		
-				<input type="text" value="0" class="knob-values knob-swarm" />
-			</div>
-			<div class="knob-container">		
-				<input type="text" value="0" class="knob-values knob-swarm" />
-			</div>			
 			<br style="clear: both" />
 		</div>	
 		<div class="knob-swarm-description">		
 			<p>Simply by adding some text fields and calling the following code, you can add a swarm of knobs to your page.</p>
 			<pre>		
 	$('.knob-swarm').knobRot({
-		'classes': ['black'],
-		'frameWidth': 66,
-		'frameHeight': 66,
-		'frameCount': 45
-	});								
+		'classes': ['circle'],
+		'frameCount': 69,
+		'detent': true,
+		'detentThreshold': 5,
+		'minimumValue': -60,
+		'maximumValue': 60
+	});							
 			</pre>
-		</div>					
+		</div>
+		<h2>How to get the graphics:</h2>
+		<p>You can use <a href="http://www.g200kg.com/en/software/knobman.html">KnobMan</a> to generate the button graphics.  Export your knob as a horizontal strip of frames (<a href="images/knobs/circle/circle.png">click for an example with hover and drag variants.</a>)</p>
+		<h2>Plugin source code</h2>		
+		<p>To get the source code, or if you have any questions, feature requests or bug reports feel free contact me via my <a href="https://github.com/AlexanderParker/Side-Projects/tree/master/jquery-plugins/knobRot">GitHub Account</a>.  My blog is <a href="http://www.domitable.com">back this way</a>.</p>		
 		<h2>Full settings list</h2>
-		<p>These are all of the available settings.  They should be fairly self-explanatory, hit me up if you have any issues</p>
+		<p>These are all of the available settings.  They should be fairly self-explanatory, ask for support over at github if you have any issues</p>
 		<pre>
 	// The default class - over-ride this for different knob styles
 	classes: ['rot-knob'],
@@ -176,12 +179,89 @@
 	// Not yet implemented
 	isToggle: true				
 		</pre>
+		<h2>Events</h2>
+		<p>Each knob will fire custom events.  Currently, these are in an early stage of development but they are scheduled to be improved soon.</p>
+		<p>The available events are as follows:</p>
+		<table>
+			<thead>
+				<tr>
+					<th>Event name</th>
+					<th>Description</th>
+					<th>Parameters</th>					
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>knobdragstart</td>
+					<td>Triggered when the user starts dragging a knob.</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>knobrefresh</td>
+					<td>Triggered when the knob value requires a refresh.</td>
+					<td></td>
+				</tr>				
+				<tr>
+					<td>knobdrag</td>
+					<td>Triggered during knob drag.</td>
+					<td></td>					
+				</tr>
+				<tr>
+					<td>knobmouseover</td>
+					<td>Triggered when a knob mouseover event occurs (not triggered if currently dragging).</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>knobmouseout</td>
+					<td>Triggered when a knob mouseout event occurs.</td>
+					<td></td>
+				</tr>				
+				<tr>
+					<td>knobready</td>
+					<td>Triggered when a knob is fully initialised and all of its events and mappings are set up.</td>
+					<td></td>
+				</tr>				
+				<tr>
+					<td>knobenterdetent</td>
+					<td>Triggered when the knob detents, or snaps to its center value.</td>
+					<td></td>
+				</tr>				
+				<tr>
+					<td>knobleavedetent</td>
+					<td>Triggered when the knob leaves its center value.</td>
+					<td></td>
+				</tr>				
+				<tr>
+					<td>knobvaluemin</td>
+					<td>Triggered when the knob meets or exceeds its minimum limit.</td>
+					<td></td>
+				</tr>				
+				<tr>
+					<td>knobvaluemax</td>
+					<td>Triggered when the knob meets or exceeds its maximum limit.</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>knobframechange</td>
+					<td>Triggered when the frame changes.</td>
+					<td>1: Knob Data Object | 2: Old Frame | 3: New Frame</td>
+				</tr>
+			</tbody>
+		</table>
+		<h2>Functions</h2>
+		<p>The following functions are available after a knob is initialised:</p>
+		To return the value of the specified knob:
+		<pre>$('myselector').knobRot('get')</pre>
+		To set the value of the specified knob, or knobs (will work with a collection):
+		<pre>$('myselector').knobRot('set', value)</pre>
 		<h2>Credits</h2>
 		<p>Other than the use of jQuery and KnobMan, all of the work here is my own.  It's free for you guys to use however you want, though some feedback would be nice if you do use it.  Check out my blog <a href="http://www.domitable.com">"Domitable"</a> for more cool stuff.</p>
 		<script type="text/javascript">
 			$(document).ready(function() {
 				// Instantiate the basic knob
 				$('#basic-knob').knobRot();
+				// Instantiate the basic horizontal knob				
+				$('#basic-knob-horizontal').knobRot({dragVertical: false});				
 				// Instantiate the circle knob
 				$('#circle-knob').knobRot({
 					'classes': ['circle'],

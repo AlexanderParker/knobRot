@@ -240,7 +240,7 @@
 					
 					// Force a refresh of values on certain events					
 					knobDiv.on('mouseover.knobRot mouseout.knobRot mouseup.knobRot', function() {
-						knobDiv.data('knobRot').outputField.trigger('knobrefresh.knobRot', knobDiv);
+						knobDiv.data('knobRot').outputField.trigger('knobrefresh', knobDiv);
 					});
 					
 					// Handle hovering
@@ -306,7 +306,7 @@
 				var $this = $(this);
 				if ($this.is('input:text')) {
 					$this.data('knobRot').realValue.val( parseFloat(value) );
-					$this.data('knobRot').realValue.trigger('knobrefresh.knobRot');
+					$this.data('knobRot').realValue.trigger('knobrefresh');
 				}
 			});
 		},
@@ -434,7 +434,7 @@
 			
 			//Trigger a frame change event
 			if ($realValueField.data('knobRot').currentFrame != calculatedFrame) {
-				$realValueField.data('knobRot').outputField.trigger('knobframechange', [knobData.knobDiv, $realValueField.data('knobRot').currentFrame, calculatedFrame]);
+				$realValueField.data('knobRot').outputField.trigger('knobframechange', [knobData, $realValueField.data('knobRot').currentFrame, calculatedFrame]);
 			}
 			
 			return calculatedFrame;
