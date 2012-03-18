@@ -51,7 +51,7 @@
 				hideInput: false,
 				
 				// Whether or not to hide the real value field
-				hideRealValue: false,				
+				hideRealValue: true,				
 				
 				// If isToggle is true, rather than dragging to change the value
 				// you simply click to toggle between max and min - all other settings
@@ -501,12 +501,13 @@
 			var offsetX = methods.calculateBackgroundOffsetX( $realValueField ) + 'px';
 			var offsetY = "0px";
 
-			//Calculate the Y offset
-			if ($realValueField.data('knobRot').outputField.hasClass('hover')) {	
+			//Calculate the Y offset for hover events
+			if ($realValueField.data('knobRot').outputField.hasClass('hover') && $('body').data('knobRot').dragging == false) {	
 				offsetY = (0 - $realValueField.data('knobRot').settings.frameHeight) + "px";
 			}
-
-			if ($('body').data('knobRot').dragging == true) {
+			
+			//If we're dragging and we're dragging the right element, select the dragging graphics
+			if ($('body').data('knobRot').dragging == true && $realValueField.is($('body').data('knobRot').knobDiv.data('knobRot').target)) {
 				offsetY = (0 - $realValueField.data('knobRot').settings.frameHeight * 2 ) + "px";
 			}
 
