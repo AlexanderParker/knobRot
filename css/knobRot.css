@@ -1,0 +1,76 @@
+/*
+ * The following 6 styles are all that are required for the knobs
+ */
+
+.rot-knob{
+	background-image: url(../images/knobs/blueplastic/blueplastic.png);
+}
+
+.black{
+	background-image: url(../images/knobs/blackgear/blackgear.png);
+}
+
+.circle{
+	background-image: url(../images/knobs/circle/circle.png);
+}
+
+.circle:hover{
+	background-position-y: -64px;
+}
+
+.circle.dragging{
+	background-position-y: -64px;
+}
+
+.circle.dragging{
+	background-position-y: -128px;
+}
+
+/*
+ * The rest of this stylesheet is just to make the demo page look nice
+ */
+ 
+ .rot-knob-base{
+	margin: 0 auto;
+ }
+ 
+ .knob-container{
+	text-align: center;
+	width: 100px;
+	height: 100px;
+	float: left;
+ }
+ 
+ .knob-swarm-container{
+	width: 300px;
+	float: left;
+ }
+ 
+ .knob-swarm-description{
+	margin-left: 350px;
+ }
+ 
+ h2{
+	clear: both;
+ }
+ 
+ .knob-description{
+	margin-left: 150px;
+ }
+ 
+.knob-values{
+	width: 50px;	
+	text-align: center;
+	border: 0;
+	cursor: pointer;
+    -moz-user-select:none;
+	-webkit-user-select:none;
+	user-select:none;
+	-ms-user-select:none;
+}
+
+pre {
+	border: 1px solid orange;
+	padding: 10px;
+	background-color: lightYellow;
+}

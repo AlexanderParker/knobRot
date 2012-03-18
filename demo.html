@@ -1,0 +1,216 @@
+<html>
+	<head>
+		<title>knobRot.js Demonstration</title>
+		<script type="text/javascript" src="dependencies/jquery.js"></script>		
+		<script type="text/javascript" src="knobRot-0.1.0.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/knobRot.css" />
+	</head>
+	<body>
+		<h1>knobRot.js demonstration</h1>
+		<hr />
+		<h2>Introduction:</h2>		
+		<p>Well I guess you're all wondering what this is exactly.  I am the first to admit it's a very niche requirement, but what you see before you here a knobs.  The kind that you can click and drag to set a value.</p>
+		<p>The way this has been achieved is the important part.  Basically you just need a standard HTML text input element, and the jQuery plugin I've provided does the rest of the work.</p>
+		<p>How you use these is up to you.  I have a very specific need in mind for them, but I thought I would share anyway, as I haven't really seen anything that did quite what I wanted in my travels.</p>
+		<p>If you have any questions or comments feel free to contact me at gmail, my address is alexofparker, or via my <a href="https://github.com/AlexanderParker/Side-Projects/tree/master/jquery-plugins/knobRot">GitHub Account</a>.</p>
+		<h2>Basic Knob:</h2>
+		<div class="knob-container">
+			<input type="text" value="0" id="basic-knob" class="knob-values" />			
+		</div>
+		<div class="knob-description">
+			<p>This is a rotary knob with a value range between -100 and 100.  It is center detented (that means it snaps) to 0, with a sensitivity of -10 to 10 for the snapping.  There are 64 frames in the knob image - the code works out all the hard stuff.  As you can see.</p>
+			<pre>
+	$('#basic-knob').knobRot();
+			</pre>
+		</div>		
+		<h2>Hover and drag-state effects:</h2>
+		<div class="knob-container">		
+			<input type="text" value="30" id="circle-knob" class="knob-values" />
+		</div>				
+		<div class="knob-description">		
+			<p>Using some basic CSS and a 3-layer sprite sheet, you can easily create hover and dragging effects (the plug-in adds a 'dragging' class to help with this)...</p>
+			<pre>
+	$('#circle-knob').knobRot({
+		'classes': ['circle'],
+		'frameCount': 69,
+		'detent': true,
+		'detentThreshold': 5,
+		'minimumValue': -60,
+		'maximumValue': 60
+	});				
+			</pre>
+		</div>			
+		<h2>Discrete steps:</h2>
+		<div class="knob-container">		
+			<input type="text" value="1" id="black-knob" class="knob-values" />
+		</div>				
+		<div class="knob-description">		
+			<p>Here is another one.  This is restricted to only 5 steps, in a range of 1 to 5.  Only a single line of CSS and some configuration values are needed to change the knob graphics.  Even though this particular knob has 45 frames in its animation, the code is working out how to map all of these with the desired number of steps and detenting.</p>
+			<p>You may also notice that the drag multiplier is set to 0.02.  This is because as the range is reduced, you need to reduce the amount each pixel of dragging adds to the value, otherwise the knob isn't easy to use.</p>
+			<pre>		
+	$('#black-knob').knobRot({
+		'classes': ['black'],
+		'frameWidth': 66,
+		'frameHeight': 66,
+		'frameCount': 45,
+		'detent': false,
+		'discreteSteps': true,
+		'stepCount': 5,
+		'minimumValue': 1,
+		'maximumValue': 5,
+		'dragMultiplier': 0.02
+	});				
+			</pre>
+		</div>		
+		<h2>Spawn a swarm of knobs:</h2>
+		<div class="knob-swarm-container">		
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>			
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>			
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>
+			<div class="knob-container">		
+				<input type="text" value="0" class="knob-values knob-swarm" />
+			</div>			
+			<br style="clear: both" />
+		</div>	
+		<div class="knob-swarm-description">		
+			<p>Simply by adding some text fields and calling the following code, you can add a swarm of knobs to your page.</p>
+			<pre>		
+	$('.knob-swarm').knobRot({
+		'classes': ['black'],
+		'frameWidth': 66,
+		'frameHeight': 66,
+		'frameCount': 45
+	});								
+			</pre>
+		</div>					
+		<h2>Full settings list</h2>
+		<p>These are all of the available settings.  They should be fairly self-explanatory, hit me up if you have any issues</p>
+		<pre>
+	// The default class - over-ride this for different knob styles
+	classes: ['rot-knob'],
+			
+	// The number of frames in the knob image				
+	frameCount: 64,
+	
+	// The dimensions of the source frame in PX				
+	frameWidth: 64,
+	frameHeight: 64,				
+				
+	// The value range				
+	minimumValue: -100,
+	maximumValue: 100,				
+				
+	// If detent is true, detentValue specifies the snap value				
+	// detentThreshold specifies the value range either side that
+	// will 'snap' to the detentValue
+	detent: true,	
+	detentValue: 0,
+	detentThreshold: 10,
+	
+	// If the knob has a discrete number of steps, how many?
+	// Discrete steps can be used for things like a switch you can drag
+	// on or off, etc.				
+	discreteSteps: false,
+	stepCount: 2,
+	
+	// If dragVertical is false, horizontal dragging modifies the value				
+	dragVertical: true,
+	
+	// Invert the direction of the change
+	invertDirection: false,				
+
+	// The speed at which the knob value changes when dragged 
+	// Higher numbers equal faster drag speed				
+	dragMultiplier: 1,							
+
+	// The FPS of the knob animation
+	animationFPS: 25,
+	
+	// Whether or not to hide the associated input element
+	hideInput: false,
+	
+	// Whether or not to hide the real value field
+	hideRealValue: true,				
+	
+	// If isToggle is true, rather than dragging to change the value
+	// you simply click to toggle between max and min - all other settings
+	// to do with detenting and steps will be ignored - step count will
+	// be forced to true
+	// Not yet implemented
+	isToggle: true				
+		</pre>
+		<h2>How to get the graphics:</h2>
+		<p>You can always use <a href="http://www.g200kg.com/en/software/knobman.html">KnobMan</a> to generate the button graphics.  It's a very well put together Knob-building software tool, I highly recommend it.</p>
+		<h2>Plugin source code</h2>
+		<p>Finally, you can <a href="https://github.com/AlexanderParker/Side-Projects/tree/master/jquery-plugins/knobRot">download knobRot.js and this demonstration from my GitHub account.</a></p>
+		<h2>Credits</h2>
+		<p>Other than the use of jQuery and KnobMan, all of the work here is my own.  It's free for you guys to use however you want, though some feedback would be nice if you do use it.  Check out my blog <a href="http://www.domitable.com">"Domitable"</a> for more cool stuff.</p>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				// Instantiate the basic knob
+				$('#basic-knob').knobRot();
+				// Instantiate the circle knob
+				$('#circle-knob').knobRot({
+					'classes': ['circle'],
+					'frameCount': 69,
+					'detent': true,
+					'detentThreshold': 5,
+					'minimumValue': -60,
+					'maximumValue': 60
+				});									
+				// Instantiate the black knob
+				$('#black-knob').knobRot({
+					'classes': ['black'],
+					'frameWidth': 66,
+					'frameHeight': 66,
+					'frameCount': 45,
+					'detent': false,
+					'discreteSteps': true,
+					'stepCount': 5,
+					'minimumValue': 1,
+					'maximumValue': 5,
+					'dragMultiplier': 0.02
+				});
+				// Instantiate a swarm of knobs
+				$('.knob-swarm').knobRot({
+					'classes': ['circle'],
+					'frameCount': 69,
+					'detent': true,
+					'detentThreshold': 5,
+					'minimumValue': -60,
+					'maximumValue': 60
+				});				
+			});			
+		</script>
+	</body>
+</html>
