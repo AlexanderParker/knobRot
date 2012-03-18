@@ -153,10 +153,10 @@
 
 						// Make sure we're only dragging once
 						if ( $('body').data('knobRot').dragging != true ) {
-						
+												
 							var startOffset = {
-								'left': event.pageX,
-								'top': event.pageY
+								'left': event.screenX,
+								'top': event.screenY
 							};						
 
 							// Add drag class
@@ -191,18 +191,21 @@
 
 					// Handle dragging
 					$(document).on('mousemove.knobRot', function( event ) {
+					
+						//var event = $.event.fix(e);
+					
 						if ( $('body').data('knobRot').dragging == true ) {
 												
 							//Calculate the distance moved
 							var displacement = {
-								'horizontal': event.pageX - $('body').data('knobRot').lastOffset.left,
-								'vertical': event.pageY - $('body').data('knobRot').lastOffset.top
+								'horizontal': event.screenX - $('body').data('knobRot').lastOffset.left,
+								'vertical': event.screenY - $('body').data('knobRot').lastOffset.top
 							}														
-							if (displacement.vertical > 0) console.log(displacement.vertical);
+
 							//Update the drag container's last offser
 							$('body').data('knobRot').lastOffset = {
-								'left': event.pageX,
-								'top': event.pageY
+								'left': event.screenX,
+								'top': event.screenY
 							}
 							
 							//Update the knob's field with the displaced value
