@@ -126,19 +126,32 @@
 					var updateDelay = 1000 / settings.animationFPS;								
 
 					//Create knob graphic div - build the classes string too					
-					settings.classes[settings.classes.length] = 'rot-knob-base';
+					var classes = settings.classes.slice();
+					classes[classes.length] = 'rot-knob-base';
 					var forName = $this.attr('name');
 					if (typeof(forName) == 'undefined') {
 						forName = 'unnamed';
 					}
-					settings.classes[settings.classes.length] = 'for-input-' + forName + '-' + $this.attr('id');
+					var forId = $this.attr('id');
+					if (typeof(forId) == 'undefined') {
+						forId = 'noid';
+					}
+					classes[classes.length] = 'for-input-' + forName + '-' + forId;
 					var knobDiv = $('<div>', { 
-						'class': settings.classes.join(' ')
+						'class': classes.join(' ')
 					});				
 					
-					//Link graphic div with input element
-					knobDiv.data('knobRot', { target: realValueField });
-					realValueField.data('knobRot').target = knobDiv;
+					// Link the three fields together				
+					knobDiv.data('knobRot', { 
+						'realValue': realValueField 
+					});
+					
+					realValueField.data('knobRot').knobDiv = knobDiv;
+
+					$this.data('knobRot', { 
+						knob: knobDiv,
+						realValue: realValueField
+					});					
 					
 					//Set the style of the grahic div to some sensible defaults
 					knobDiv.css({
@@ -147,13 +160,15 @@
 						'background-position': methods.calculateBackgroundOffsetX( realValueField ) + 'px 0px',
 						'cursor': methods.getDragCursorClass( realValueField )
 					});
+					
+
 										
 					//Bind drag events to the knob div
 					knobDiv.on('mousedown.knobRot', function( event ) {
 						
 						//Only use the main mouse button for mousedown events
 						if (event.which != 1) {
-							return false;
+							return;
 						}
 						
 						$knobDiv = $(this);
@@ -175,24 +190,12 @@
 							$('body').data('knobRot').knobDiv = $knobDiv;		
 							
 							//Set the drag cursor
-							$('body').addClass(methods.getDragCursorClass($knobDiv.data('knobRot').target));
-						}
-					});
-					
-					// Link the knob div to the input field					
-					$this.data('knobRot', { knob: knobDiv });
-					
-					// Disable selection if a drag is in progress
-					$('body').on('selectstart.knobRot select.knobRot mousedown.knobRot mouseover.knobRot',function(){			
-						if ($('body').data('knobRot').dragging == true) {
-							return false;
+							$('body').addClass(methods.getDragCursorClass($knobDiv.data('knobRot').realValue));
 						}
 					});
 
 					// Handle dragging
 					$(document).on('mousemove.knobRot', function( event ) {
-					
-						//var event = $.event.fix(e);
 					
 						if ( $('body').data('knobRot').dragging == true ) {
 												
@@ -209,61 +212,45 @@
 							}
 							
 							//Update the knob's field with the displaced value
-							methods.updateValue( $('body').data('knobRot').knobDiv.data('knobRot').target, displacement);
+							methods.updateValue( $('body').data('knobRot').knobDiv.data('knobRot').realValue, displacement );
 							
-							//Compare with current value to see if an event needs to be 
-							//triggered			
-							$('body').data('knobRot').knobDiv.data('knobRot').target.trigger('knobrefresh.knobRot');
+							$('body').data('knobRot').knobDiv.data('knobRot').realValue.trigger('knobrefresh');
 						}																
 					});
-
-					// Handle hovering
-					knobDiv.on('mouseover', function() {
-						$this.addClass('hover');
-						var cursorClass = methods.getDragCursorClass(knobDiv.data('knobRot').target);
-						knobDiv.addClass(cursorClass);
-					});
-					knobDiv.on('mouseout', function() {
-						$this.removeClass('hover');						
-						var cursorClass = methods.getDragCursorClass(knobDiv.data('knobRot').target);						
-						knobDiv.removeClass(cursorClass);
-					});
 					
-					// Stop dragging on mouse up
+					// Stop dragging on mouse up or context menu
 					$(document).on('mouseup.knobRot', function() {
 						methods.stopDrag();
-					});
-					
-					// Special case, where the mouse leaves and is released
-					// If it comes back into the body we want to check to see
-					// if the mouse is still down
-					$('body').on('mouseleave.knobRot', function() {
+					});					
+									
+					// Disable document selection if a drag is in progress
+					$('body').on('selectstart.knobRot select.knobRot mousedown.knobRot mouseover.knobRot',function(){			
 						if ($('body').data('knobRot').dragging == true) {
-							$('body').data('knobRot').leftWhileDragging = true;
+							return false;
 						}
-					});
-					$('body').on('mouseenter.knobRot', function() {
-						if ($('body').data('knobRot').leftWhileDragging == true) {
-							console.log('Left while dragging');
-							$('body').trigger('click');
-						}
-						$('body').data('knobRot').leftWhileDragging = false;
-					});
-					
-					// Handle direct changes to the field value
-					realValueField.on('change', function() {
-						realValueField.trigger('knobrefresh.knobRot');
 					});
 					
 					// Handle knob value change events
 					realValueField.on('knobrefresh.knobRot', function() {
 						realValueField.data('knobRot').dirtyData = true;
-						$this.val(realValueField.data('knobRot').calculatedValue);
 					});
 					
+					// Force a refresh of values on certain events					
 					knobDiv.on('mouseover.knobRot mouseout.knobRot mouseup.knobRot', function() {
 						realValueField.trigger('knobrefresh.knobRot');					
 					});
+					
+					// Handle hovering
+					knobDiv.on('mouseover', function() {
+						$this.addClass('hover');
+						var cursorClass = methods.getDragCursorClass(knobDiv.data('knobRot').realValue);
+						knobDiv.addClass(cursorClass);
+					});
+					knobDiv.on('mouseout', function() {
+						$this.removeClass('hover');						
+						var cursorClass = methods.getDragCursorClass(knobDiv.data('knobRot').realValue);						
+						knobDiv.removeClass(cursorClass);
+					});					
 					
 					//Insert the knob graphic div
 					realValueField.after(knobDiv);
@@ -323,7 +310,9 @@
 		 * Set the value of the knob element
 		 */
 		set: function( value ) {
-			console.log('v', value, this);
+			$this = $(this);
+			$this.data('knobRot').realValue.val( parseFloat(value) );
+			$this.data('knobRot').realValue.trigger('knobrefresh.knobRot');
 		},
 		/**
 		 * Calculates the step of a knob (accounting for detent,
@@ -331,14 +320,14 @@
 		 * Only really makes sense if discreteSteps is true in the
 		 * knob settings, throws an exception if this is not the case.
 		 */
-		calculateStep: function( $knob ) {
-			var knobData = $knob.data('knobRot');
+		calculateStep: function( $realValueField ) {
+			var knobData = $realValueField.data('knobRot');
 			var knobSettings = knobData.settings;
 			
 			if ( knobSettings.discreteSteps ) {				
 				
 				// Shift the value ranges to be positive numbers starting from 0
-				var adjustedValue = parseFloat($knob.val()) + knobData.rangeOffset;
+				var adjustedValue = parseFloat($realValueField.val()) + knobData.rangeOffset;
 
 				// Calculate the fraction of the range the current value represents
 				var rangeFraction = adjustedValue / knobData.rangeSize;
@@ -357,22 +346,22 @@
 		 * Calculates the value of a knob, taking step settings 
 		 * and detenting into account
 		 */
-		 calculateValue: function( $knob ) {
+		 calculateValue: function( $realValueField ) {
 
-			var knobData = $knob.data('knobRot');
+			var knobData = $realValueField.data('knobRot');
 			var knobSettings = knobData.settings;
 
 			if ( knobSettings.discreteSteps == true ) {			
 			
 				// Work out the current step
-				var currentStep = methods.calculateStep( $knob );
+				var currentStep = methods.calculateStep( $realValueField );
 
 				// Caluclate the current value based on the increment value
 				// and current step value
 				var calculatedValue = currentStep * knobData.stepIncrement - knobData.rangeOffset;
 				
 			} else {
-				var calculatedValue = parseFloat($knob.val());
+				var calculatedValue = parseFloat($realValueField.val());
 			}
 			
 			// Determine if value is to be detented			
@@ -384,12 +373,20 @@
 			if ( calculatedValue < knobSettings.minimumValue ) {
 			
 				//Limit the input field's value
-				$knob.val( knobSettings.minimumValue );
+				$realValueField.val( knobSettings.minimumValue );	
+
+				//Trigget an event
+				$realValueField.trigger('knob-under-min');
+				
 				return knobSettings.minimumValue;
 			} else if ( calculatedValue > knobSettings.maximumValue ) {
 			
 				//Limit the input field's value
-				$knob.val( knobSettings.maximumValue );
+				$realValueField.val( knobSettings.maximumValue );
+				
+				//Trigget an event
+				$realValueField.trigger('knob-over-max');
+				
 				return knobSettings.maximumValue;
 			}
 					
@@ -398,14 +395,14 @@
 		 /**
 		  * Calculates the current animation frame of the knob
 		  */
-		calculateFrame: function( $knob ) {
+		calculateFrame: function( $realValueField ) {
 			
-			var knobData = $knob.data('knobRot');
+			var knobData = $realValueField.data('knobRot');
 			var knobSettings = knobData.settings;			
 			
 			//Use the calculated value as it accounts for steps and
 			//detenting, adjusted for range offset
-			var calculatedValue = methods.calculateValue( $knob ) + knobData.rangeOffset;
+			var calculatedValue = methods.calculateValue( $realValueField ) + knobData.rangeOffset;
 
 			//Work out the fraction of the current value over the range
 			var rangeFraction = calculatedValue / knobData.rangeSize;
@@ -426,21 +423,22 @@
 		/**
 		 * Work out the background position
 		 */
-		calculateBackgroundOffsetX: function( $knob ) {
-			var knobData = $knob.data('knobRot');
+		calculateBackgroundOffsetX: function( $realValueField ) {
+			var knobData = $realValueField.data('knobRot');
 			var knobSettings = knobData.settings;	
-			return 0 - methods.calculateFrame( $knob ) * knobSettings.frameWidth;
+			return 0 - methods.calculateFrame( $realValueField ) * knobSettings.frameWidth;
 		},
 		/**
 		 * Animation callback
 		 */
-		updateCallback: function( $knob ) {
+		updateCallback: function( $realValueField ) {
 		
 			// Refresh the knob graphics and values if required
-			if ($knob.data('knobRot').dirtyData == true) {
-				$knob.data('knobRot').dirtyData = false;
-				$knob.data('knobRot').target.css('background-position',  methods.calculateBackrgroundOffset( $knob ) );
-				$knob.data('knobRot').calculatedValue = methods.calculateValue( $knob );
+			if ($realValueField.data('knobRot').dirtyData == true) {
+				$realValueField.data('knobRot').dirtyData = false;
+				$realValueField.data('knobRot').knobDiv.css('background-position',  methods.calculateBackrgroundOffset( $realValueField ) );
+				$realValueField.data('knobRot').calculatedValue = methods.calculateValue( $realValueField );
+				$realValueField.data('knobRot').outputField.val($realValueField.data('knobRot').calculatedValue);				
 			}
 		},
 		/**
@@ -453,61 +451,61 @@
 				
 				//Traverse the drag container's data to find the
 				//associated knob
-				var assignedInput = $('body').data('knobRot').knobDiv;
+				var $knobDiv = $('body').data('knobRot').knobDiv;
 				
 				//Unflag the drag on the knob
 				$('body').data('knobRot').dragging = false;
 							
 				// Remove drag class
-				assignedInput.removeClass('dragging');				
+				$knobDiv.removeClass('dragging');				
 				
 				//Set the drag cursor
-				$('body').removeClass(methods.getDragCursorClass(assignedInput.data('knobRot').target));
+				$('body').removeClass(methods.getDragCursorClass($knobDiv.data('knobRot').realValue));
 				
 				//Trigger a value update event
-				assignedInput.data('knobRot').target.trigger('knobrefresh.knobRot');
+				$knobDiv.data('knobRot').realValue.trigger('knobrefresh');
 			}
 		},
 		/**
 		 * Updates a field's value given a top / left displacement
 		 */
-		 updateValue: function( $field, displacement) {
+		 updateValue: function( $realValueField, displacement) {
 			var change = 0;
 			
 			// Switch between horizontal and vertical dragging depending on
 			// defined settings
-			if ($field.data('knobRot').settings.dragVertical) {
+			if ($realValueField.data('knobRot').settings.dragVertical) {
 				change = displacement.vertical;
 			} else {
 				change = displacement.horizontal;
 			}
 			
 			// Apply the multiplier
-			change = change * $field.data('knobRot').settings.dragMultiplier;
+			change = change * $realValueField.data('knobRot').settings.dragMultiplier;
 			
 			// Apply inversion if set (we sneakily flip the user's choice, as
 			// most people see up as increasing value wheras in screen-space
 			// up is a decrease in pixel position - same goes for left to right
 			// readers.
-			if (!$field.data('knobRot').settings.invertDirection) {
+			if (!$realValueField.data('knobRot').settings.invertDirection) {
 				change = 0 - change;
 			}
 			
 			//Get the current field value
-			var currentValue = parseFloat($field.val());		
+			var currentValue = parseFloat($realValueField.val());		
 			
 			//Calculate the new value
 			var newValue = currentValue + change;
 			
 			//Clamp the new value to the defined limits
-			if (newValue > $field.data('knobRot').settings.maximumValue) {
-				newValue = $field.data('knobRot').settings.maximumValue;
-			} else if (newValue < $field.data('knobRot').settings.minimumValue) {
-				newValue = $field.data('knobRot').settings.minimumValue;
+			if (newValue > $realValueField.data('knobRot').settings.maximumValue) {
+				newValue = $realValueField.data('knobRot').settings.maximumValue;
+			} else if (newValue < $realValueField.data('knobRot').settings.minimumValue) {
+				newValue = $realValueField.data('knobRot').settings.minimumValue;
 			}
 						
 			//Set the new value
-			$field.val(newValue);		
+			$realValueField.val(newValue);		
 		 },
 		 /**
 		  * Returns the hover or drag Y offset for the background image
@@ -529,7 +527,7 @@
 			}
 			
 			//If we're dragging and we're dragging the right element, select the dragging graphics
-			if ($('body').data('knobRot').dragging == true && $realValueField.is($('body').data('knobRot').knobDiv.data('knobRot').target)) {
+			if ($('body').data('knobRot').dragging == true && $realValueField.is($('body').data('knobRot').knobDiv.data('knobRot').realValue)) {
 				offsetY = (0 - $realValueField.data('knobRot').settings.frameHeight * 2 ) + "px";
 			}
 
