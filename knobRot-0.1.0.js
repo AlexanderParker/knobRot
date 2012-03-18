@@ -132,11 +132,10 @@
 					knobDiv.css({
 						'width': settings.frameWidth + 'px',
 						'height': settings.frameHeight + 'px',
-						'background-position-x': methods.calculateBackgroundOffsetX( realValueField ) + 'px',
-						'background-repeat': 'no-repeat',
+						'background-position': methods.calculateBackgroundOffsetX( realValueField ) + 'px 0px',
 						'cursor': 'pointer'
 					});
-					
+										
 					//Bind drag events to the knob div
 					knobDiv.on('mousedown.knobRot', function( event ){
 						
@@ -175,7 +174,7 @@
 							$knobDiv.data('knobRot').dragContainer = dragContainer;
 
 							// Add drag class
-							$knobDiv.addClass('dragging')							
+							$knobDiv.addClass('dragging');							
 							
 							// Flag the drag
 							$knobDiv.data('knobRot').dragging = true;							
@@ -234,7 +233,15 @@
 							//triggered			
 							dragContainer.data('knobRot').target.data('knobRot').target.trigger('knobvaluechange');
 						}																
-					});					
+					});
+
+					// Handle hovering
+					knobDiv.on('mouseover', function() {
+						$this.addClass('hover');
+					});
+					knobDiv.on('mouseout', function() {
+						$this.removeClass('hover');						
+					});
 					
 					// Handle mouse up events
 					$('body').on('mouseup.knobRot', function(){
@@ -250,6 +257,10 @@
 					realValueField.on('knobvaluechange', function() {
 						realValueField.data('knobRot').dirtyData = true;
 						$this.val(realValueField.data('knobRot').calculatedValue);
+					});
+					
+					knobDiv.on('mouseover.knobRot mouseout.knobRot', function() {
+						realValueField.trigger('knobvaluechange');					
 					});
 					
 					//Insert the knob graphic div
@@ -420,7 +431,7 @@
 			// Refresh the knob graphics and values if required
 			if ($knob.data('knobRot').dirtyData == true) {
 				$knob.data('knobRot').dirtyData = false;
-				$knob.data('knobRot').target.css('background-position-x',  methods.calculateBackgroundOffsetX( $knob ) + 'px');
+				$knob.data('knobRot').target.css('background-position',  methods.calculateBackrgroundOffset( $knob ) );
 				$knob.data('knobRot').calculatedValue = methods.calculateValue( $knob );
 			}
 		},
@@ -449,6 +460,9 @@
 				
 				//Remove the drag container from the page
 				$('#rot-knob-drag').remove();
+				
+				//Trigger a value update event
+				assignedInput.data('knobRot').target.trigger('knobvaluechange');
 			}
 		},
 		/**
@@ -491,7 +505,31 @@
 						
 			//Set the new value
 			$field.val(newValue);		
-		 }
+		 },
+		 /**
+		  * Returns the hover or drag Y offset for the background image
+		  * If background-offset-x and y were in the specs, hover and drag 
+		  * effects would each require one line of CSS instead of this ugly
+		  * jQuery workaround which is prone to breakage when events go missing
+		  * and gives designers and developers less flexibility when designing
+		  * buttons.  And it's slower.  I'm sure they had their reasons...
+		  */
+		  calculateBackrgroundOffset: function( $realValueField ) {
+			
+			var offsetX = methods.calculateBackgroundOffsetX( $realValueField ) + 'px';
+			var offsetY = "0px";
+			
+			if ($realValueField.data('knobRot').outputField.hasClass('hover')) {	
+				offsetY = (0 - $realValueField.data('knobRot').settings.frameHeight) + "px";
+			}
+		
+			if ($realValueField.data('knobRot').target.data('knobRot').dragging == true) {
+				offsetY = (0 - $realValueField.data('knobRot').settings.frameHeight * 2 ) + "px";
+			}
+		
+			return offsetX + " " + offsetY;
+			
+		  }
 	};	
 	/**
 	 * Delegate method execution
