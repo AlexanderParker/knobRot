@@ -503,11 +503,13 @@
 			// Apply the multiplier
 			change = change * $realValueField.data('knobRot').settings.dragMultiplier;
 			
-			// Apply inversion if set (we sneakily flip the user's choice, as
-			// most people see up as increasing value wheras in screen-space
-			// up is a decrease in pixel position - same goes for left to right
-			// readers.
-			if (!$realValueField.data('knobRot').settings.invertDirection) {
+			// Apply inversion if set (we sneakily flip the user's choice if
+			// we're doing vertical dragging, as most people see "up" as 
+			// increasing value wheras in screen-space up is a decrease in 
+			// pixel position.
+			
+			if ((!$realValueField.data('knobRot').settings.invertDirection && $realValueField.data('knobRot').settings.dragVertical == true)
+			|| ($realValueField.data('knobRot').settings.invertDirection && $realValueField.data('knobRot').settings.dragVertical == false)) {
 				change = 0 - change;
 			}
 			
