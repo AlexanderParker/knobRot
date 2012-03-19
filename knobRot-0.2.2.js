@@ -24,7 +24,7 @@
 				// If detent is true, detentValue specifies the snap value				
 				// detentThreshold specifies the value range either side that
 				// will 'snap' to the detentValue
-				detent: true,	
+				detent: false,	
 				detentValue: 0,
 				detentThreshold: 10,
 				
@@ -58,7 +58,10 @@
 				// to do with detenting and steps will be ignored - step count will
 				// be forced to true
 				// Not yet implemented
-				isToggle: true								
+				isToggle: true, 
+
+				//Basic callback on refresh
+				callback: function() { }
 			
 			}, options );
 			
@@ -78,7 +81,10 @@
 				} 					
 				
 				// Buffer the knob element
-				var $this = $(this);				
+				var $this = $(this);
+				
+				// Apply the settings callback
+				$this.callback = settings.callback;
 				
 				// Disable autocomplete
 				$this.attr('autocomplete','off');
@@ -235,6 +241,11 @@
 					
 					// Handle knob value change events
 					$this.on('knobrefresh.knobRot', function() {
+					
+						//Execute the custom callback
+						$this.callback();
+						
+						//Do the dirty
 						realValueField.data('knobRot').dirtyData = true;
 					});
 					
@@ -279,6 +290,9 @@
 					$this.attr('unselectable','on');
 					$this.on('mousedown', function() {return false;});
 					$this.on('mouseover', function() {return false;});
+					
+					//Trigger knob ready events
+					$this.trigger('knobrefresh', knobDiv);					
 					$this.trigger('knobready', knobDiv);
 				}				
 			});
