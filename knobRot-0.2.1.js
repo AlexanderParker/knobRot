@@ -459,6 +459,7 @@
 				$realValueField.data('knobRot').knobDiv.css('background-position',  methods.calculateBackrgroundOffset( $realValueField ) );
 				$realValueField.data('knobRot').calculatedValue = methods.calculateValue( $realValueField );
 				$realValueField.data('knobRot').outputField.val($realValueField.data('knobRot').calculatedValue);				
+				$realValueField.data('knobRot').outputField.data('knobRot').calculatedValue = $realValueField.data('knobRot').calculatedValue;
 			}
 		},
 		/**
