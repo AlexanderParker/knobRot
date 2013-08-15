@@ -1,5 +1,6 @@
 (function( $ ) {
 
+
 	var methods = {
 		
 		init: function( options ) {
@@ -241,10 +242,7 @@
 					
 					// Handle knob value change events
 					$this.on('knobrefresh.knobRot', function() {
-					
-						//Execute the custom callback
-						$this.callback();
-						
+										
 						//Do the dirty
 						realValueField.data('knobRot').dirtyData = true;
 					});
@@ -273,7 +271,9 @@
 					realValueField.after(knobDiv);
 					
 					//Register update callbacks
-					setInterval( function() { methods.updateCallback(realValueField);	}, updateDelay );
+					knobDiv.data('interval', setInterval( function() {
+                        methods.updateCallback(realValueField);
+                    }, updateDelay ));
 					
 					//Hide the input fields
 					if (settings.hideInput == true) {
@@ -474,6 +474,9 @@
 				$realValueField.data('knobRot').calculatedValue = methods.calculateValue( $realValueField );
 				$realValueField.data('knobRot').outputField.val($realValueField.data('knobRot').calculatedValue);				
 				$realValueField.data('knobRot').outputField.data('knobRot').calculatedValue = $realValueField.data('knobRot').calculatedValue;
+
+				//Execute the custom callback
+				$realValueField.data('knobRot').outputField.callback();		
 			}
 		},
 		/**
@@ -499,6 +502,7 @@
 				
 				//Trigger a value update event
 				$knobDiv.data('knobRot').outputField.trigger('knobrefresh');
+				$knobDiv.data('knobRot').outputField.trigger('knobdragstop');
 			}
 		},
 		/**
@@ -591,7 +595,12 @@
 				'	.rotknob-e-resize{ cursor: e-resize!important; }' +			
 				'</style>'
 			).appendTo('body');
-		}
+		},
+        stopCallback: function() {
+            this.each(function() {
+                clearInterval($(this).data('interval'));
+            });
+        }
 	};	
 	/**
 	 * Delegate method execution
