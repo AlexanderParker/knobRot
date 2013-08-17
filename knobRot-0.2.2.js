@@ -273,7 +273,9 @@
 					realValueField.after(knobDiv);
 					
 					//Register update callbacks
-					setInterval( function() { methods.updateCallback(realValueField);	}, updateDelay );
+					knobDiv.data('interval', setInterval( function() {
+                        methods.updateCallback(realValueField);
+                    }, updateDelay ));
 					
 					//Hide the input fields
 					if (settings.hideInput == true) {
@@ -591,6 +593,11 @@
 				'	.rotknob-e-resize{ cursor: e-resize!important; }' +			
 				'</style>'
 			).appendTo('body');
+		},
+        stopCallback: function() {
+            this.each(function() {
+                clearInterval($(this).data('interval'));
+            });
 		}
 	};	
 	/**
